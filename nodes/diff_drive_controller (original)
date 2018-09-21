@@ -4,8 +4,6 @@ from __future__ import division
 import rospy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Int32
-#need to add this msg type for adafruit motor hat
-from std_msgs.msg import Int16MultiArray
 
 from diff_drive import controller
 
@@ -21,11 +19,6 @@ class ControllerNode:
                                        Int32, queue_size=1)
         self.rightPub = rospy.Publisher('rwheel_desired_rate',
                                         Int32, queue_size=1)
-        # add another publisher
-        #latch true = keep sending last msg
-        #relay topic /ada_rate to /cmd where motor_hat_node listens on
-        self.adahatPub = rospy.Publisher('ada_rate', Int16MultiArray,
-                                         queue_size=1)
 
         rospy.init_node('diff_drive_controller')
         self.nodeName = rospy.get_name()
@@ -55,30 +48,9 @@ class ControllerNode:
                                                self.angularVelocity)
             self.leftPub.publish(int(speeds.left))
             self.rightPub.publish(int(speeds.right))
-            #this is how the controllers for the motor hat node publish to the controller
-            #adapt this to 
-            # setup a ros publisher and a method to send msgs to it.
-            # publisher = rospy.Publisher('cmd', Int16MultiArray,
-            #                             queue_size=1, latch=True)
-            # rospy.init_node("teleop")
-
-            # def pub(values):
-            #     values = [-v for v in values]  # hack
-            #     rospy.loginfo("publish [%s]" % values)
-            #     msg = Int16MultiArray()
-            #     msg.data = values
-            #     publisher.publish(msg)
-            # connect left motor to M1 and right motot to M2 on the Adafruit motor hat
-            # motor hat controller expect 4 values for 4 dc motors, 3 and 4 not used, so 0
-            msg = Int16MultiArray()
-            msg.data = [int(speeds.left), int(speeds.right), 0, 0]
-            self.adahatPub.publish(msg)
         else:
             self.leftPub.publish(0)
             self.rightPub.publish(0)
-            msg = Int16MultiArray()
-            msg.data = [0, 0, 0, 0]
-            self.adahatPub.publish(msg)
 
     def twistCallback(self, twist):
         self.linearVelocity = twist.linear.x
