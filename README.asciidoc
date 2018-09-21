@@ -40,8 +40,8 @@ diff_drive package
  
  the diff_drive_controller.py requests these parameters from the launch file and sends them to controller.py to assist in calculating the speeds based on standard ROS geometry/twist msgs received (linear velocity x and angular velocity z)
  the controller used will be turtlebot_teleop_key, for simple keyboard operation
- with default settings this sends a maximum x linear velocity of 2
+ with default settings this sends a maximum x linear velocity of 0.2
  and the motorspeeds or tickrate is determined by
  tickRate = linearSpeed*self.ticksPerMeter
- or 255 = 2 * tickspermeter
- so in the demo.launch change tickspermeter to 125
+ or 255 = 0.2 * tickspermeter
+ so in the demo.launch change tickspermeter to 1250
