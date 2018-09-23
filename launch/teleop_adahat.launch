@@ -1,0 +1,33 @@
+<launch>
+<!-- arguments for the diff_drive_controller node -->
+  <arg name="ticks_per_meter" value="1250" />
+  <arg name="wheel_separation" value="0.2" />
+ <!-- set remote machine -->
+  <machine
+	name="Raspi"
+	address="192.168.0.155"
+	user="pi"
+	password="Wigginx_01"
+	timeout="30"
+	env-loader="/home/pi/rplidar_ws/devel/remote_env_loader.sh"
+  />	
+<!-- run this on remote Raspi -->
+  <node machine="Raspi" pkg="motor_hat" name="motor_hat" type="motor_hat_node">
+  </node>
+<!-- the next are ran on master -->
+<!-- controller converts geometry/twist messages to left and right wheel speeds -->
+  <node name="controller" pkg="diff_drive" type="diff_drive_controller">
+    <rosparam subst_value="true">
+      ticks_per_meter: $(arg ticks_per_meter)
+      wheel_separation: $(arg wheel_separation)
+      max_motor_speed: 255
+      timeout: 1.0
+    </rosparam>
+    <remap from="cmd_vel" to="/robot/cmd_vel" />
+    <remap from="ada_rate" to="cmd" />
+  </node>
+<!-- remote keyboard control -->
+  <node pkg="turtlebot_teleop" name="turtlebot_teleop" type="turtlebot_teleop_key" output="screen">
+  	<remap from="/turtlebot_teleop/cmd_vel" to="/robot/cmd_vel" />
+  </node>
+</launch>
